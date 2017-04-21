@@ -1,24 +1,43 @@
 {% extends "base.html" %}
 {% block body %}
+<style>
+form {
+    border: 3px solid #f1f1f1;}
+input[type=text], input[type=password] {
+    width: 10%; padding: 5px 7px; margin: 2px 0; display: inline-block;
+    border: 1px solid #ccc; box-sizing: border-box;}
+button {    background-color: #4CAF50; color: white;   padding: 7px 10px;
+    margin: 4px 0;    border: none;    cursor: pointer;    width: 10%;}
+button:hover {    opacity: 0.8;}
+.imgcontainer {    text-align: center;    margin: 24px 0 12px 0;}
+.container {    padding: 16px;}
+span.psw {    float: right;    padding-top: 16px;}
+@media screen and (max-width: 300px) {    span.psw {       display: block;       float: none;    }
+    .cancelbtn {       width: 100%;    }}
+</style>
+
     <h1>Serdecznie witamy w wypozyczalni sprzetu zimowego!</h1>
     <h1>BierSki</h1>
     {% if 'username' in session %}
         <p>Witam Cie {{session['username']}}!</p>
             {% if 'admin' in session['username'] %}
-            <p> Zalogowales sie jako ADMIN </p>
-            <p> Jako administrator mozesz dodawac/usuwac/modyfikowac uzytkownikow oraz sprzet </p>
+            <p> Jako administrator niedlugo bedziesz mogl</p>
+            <p>dodawac, usuwac, modyfikowac uzytkownikow oraz sprzet </p>
             {% endif %}
         <form action="{{url_for('index')}}" method="post">
-            <input type="submit" name="logout" value="Wyloguj" />
+            <button type="submit" name="logout"> Wyloguj </button>
         </form>
         {% endif %}
-        <input type="submit" name="wypozycz" value="Przejdz do sklepu" />
+        <button type="submit" name="wypozycz"> Przejdz do sklepu </button>
             <form action="{{url_for('index')}}" method="post">
-                <p>Login:<br />
-                <input type="text" name="username" required/></p>
-                <p>Haslo:<br />
-                <input type="password" name="password" required/></p>
-                <p><input type="submit" value="Zaloguj sie jako administrator" /></p>
+                <div class="container">
+                    <label><b>Login:</b></label>
+                    <input type="text" placeholder="Podaj login" name="username" required/></p>
+                    <label><b>Haslo:</b></label>
+                    <input type="password" placeholder="Podaj haslo" name="password" required/></p>
+                    <button type="submit">Zaloguj sie</button>
+                    <input type="checkbox" checked="checked"> Remember me
+                </div>
 	        </form>
         {% with messages = get_flashed_messages() %}
         {% for message in messages %}
