@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block body %}
+    <h1>Serdecznie witamy w wypozyczalni sprzetu zimowego!</h1>
+    <h1>BierSki</h1>
+    {% if 'username' in session %}
+        <p>Witam Cie {{session['username']}}!</p>
+            {% if 'admin' in session['username'] %}
+            <p> Zalogowales sie jako ADMIN </p>
+            <p> Jako administrator mozesz dodawac/usuwac/modyfikowac uzytkownikow oraz sprzet </p>
+            {% endif %}
+        <form action="{{url_for('index')}}" method="post">
+            <input type="submit" name="logout" value="Wyloguj" />
+        </form>
+        {% endif %}
+        <input type="submit" name="wypozycz" value="Przejdz do sklepu" />
+            <form action="{{url_for('index')}}" method="post">
+                <p>Login:<br />
+                <input type="text" name="username" required/></p>
+                <p>Haslo:<br />
+                <input type="password" name="password" required/></p>
+                <p><input type="submit" value="Zaloguj sie jako administrator" /></p>
+	        </form>
+        {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            {{message}}
+        {% endfor %}
+    {% endwith %}
+{% endblock %}
