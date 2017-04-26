@@ -8,6 +8,19 @@ from flask import g, request, render_template, jsonify
 app = Flask(__name__)
 app.secret_key = "123"
 
+########################################### DATABASE CONNETION ############################################
+
+
+config = ConfigParser.SafeConfigParser()
+config.read('/home/BierSki/config.ini')
+app.config['MYSQL_MYSQL_USER'] = config.get('KEY', 'user')
+app.config['MYSQL_PASSWORD'] = config.get('KEY', 'password')
+app.config['MYSQL_DB'] = config.get('KEY', 'database')
+app.config['MYSQL_HOST'] = config.get('KEY', 'host')
+mysql = MySQL(app)
+app.config['JSONIFY_PRETTYPRINT_REGULAR']
+
+
 # @app.route('/')
 # def hello_world():
 #     return flask.render_template('index.html')
