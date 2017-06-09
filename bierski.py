@@ -84,7 +84,6 @@ def listUsers():
 def removeUserFromDatabase(login):
     ifLoginExist = 0
     listOfUsers = listUsers()
-    print 'Hakuna'
     for user in listOfUsers:
         if login == user[1]:
             print 'uzytkowniek jest w bazie'
@@ -124,6 +123,17 @@ def addEquipmentToDatabase(type,brand,prod_year,status):
         print row
     return "Dodano sprzet do bazy danych"
 
+def RentEquipment(year,month,day,user_id,equipment_id):
+    print RentEquipment
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM orders")
+    rows = cursor.fetchall()
+    mysqlCmd = "INSERT INTO `orders` (`o_date_start`, `u_id`, `e_id`) VALUES ('"+str(year)+"-"+str(month)+"-"+str(day)+"','"+str(user_id)+"','"+str(equipment_id)+"');"
+    print mysqlCmd
+    cursor.execute(mysqlCmd)
+    return "Wypozyczono sprzet"
+
 def listEquipment():
     listOfEquipment = []
     conn = mysql.connection
@@ -133,6 +143,28 @@ def listEquipment():
     for row in rows:
         listOfEquipment.append(row)
     return listOfEquipment
+
+def removeEquipmentFromDatabase(e_id):
+    print "e_id= "+e_id
+    listOfEquipment = listEquipment()
+    for i in range(len(listOfEquipment)):
+        print listOfEquipment[i][0]
+        print 'type(listOfEquipment[i][0])'+type(listOfEquipment[i][0])
+        if e_id == listOfEquipment[i][0]:
+            print "ID sprzetu do usuniecia sie zgadza"
+        else:
+            print "Id niezgodne"
+    return listOfEquipment
+
+def listOrders():
+    listOfOrders = []
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM orders")
+    rows = cursor.fetchall()
+    for row in rows:
+        listOfOrders.append(row)
+    return listOfOrders
 
 class Main(flask.views.MethodView):
     def get(self):
@@ -183,9 +215,28 @@ class Equipment(flask.views.MethodView):
             prod_year = flask.request.form['prod_year']
             status = flask.request.form['status']
             addEquipmentToDatabase(type,brand,prod_year,status)
-        elif 'removeEquipment' in flask.request.form:
-            flask.flash("Funkcja w budowie")
-            print "Metoda w budowie"
+        elif 'removeEquipmentButton' in flask.request.form:
+            print 'kliknieto removeEquipment'
+            e_id = flask.request.form['idToRemove']
+            e_id = int(e_id)
+            ifIdCorrect = 0
+            conn = mysql.connection
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM equipment")
+            rows = cursor.fetchall()
+            print "przed forem"
+            for row in rows:
+                print row[0]
+                if e_id == row[0]:
+                    print e_id
+                    ifIdCorrect = 1
+            if ifIdCorrect == 1:
+                print "Id poprawne"
+                mysqlCmd = "DELETE FROM `equipment` WHERE `e_id`='"+str(e_id)+"';"
+                print "mysqlCmd: "+mysqlCmd
+                cursor.execute(mysqlCmd)
+            else:
+                print "Id niepoprawne"
         elif 'listOfEquipment' in flask.request.form:
             EncodedListOfEquipment =[]
             ListOfEquipment = listEquipment()
@@ -210,6 +261,48 @@ class Equipment(flask.views.MethodView):
                 flask.flash(EncodedListOfEquipment[index])
         return flask.redirect(flask.url_for('equipment'))
 
+class Orders(flask.views.MethodView):
+    def get(self):
+        return flask.render_template('orders.html')
+    def post(self):
+        if 'RentEquipment' in  flask.request.form:
+            year = flask.request.form['year']
+            month = flask.request.form['month']
+            day = flask.request.form['day']
+            user_id = flask.request.form['user_id']
+            equipment_id = flask.request.form['equipment_id']
+            RentEquipment(year,month,day,user_id,equipment_id)
+        elif 'listOfOrders' in  flask.request.form:
+            EncodedListOfOrders =[]
+            ListOfOrders = listOrders()
+            for index in range(0,len(ListOfOrders)):
+                encoded = "Order Id:"
+                encoded+=str(ListOfOrders[index][0])
+                encoded+=' User Id: '
+                encoded+=str(ListOfOrders[index][1])
+                encoded+='   Equipment Id:'
+                encoded+=str(ListOfOrders[index][2])
+                encoded+='   Date start:'
+                encoded+=str(ListOfOrders[index][3])
+                encoded+='   Date end:'
+                encoded+=str(ListOfOrders[index][4])
+                encoded+='   Charge:'
+                encoded+=str(ListOfOrders[index][5])
+                EncodedListOfOrders.append(encoded)
+                print encoded
+            print EncodedListOfOrders
+            for index in range(len(EncodedListOfOrders)):
+                flask.flash(EncodedListOfOrders[index])
+        return flask.render_template('orders.html')
+
+@app.route('/applogin', methods=['POST'])
+def logowanie():
+    login =  flask.request.form['login']
+    password = flask.request.form['password']
+    result = "Zwracam "
+    result += login
+    result += password
+    return result
 app.add_url_rule('/',
                  view_func=Main.as_view('index'),
                  methods=["GET", "POST"])
@@ -218,6 +311,9 @@ app.add_url_rule('/add/',
                  methods=["GET","POST"])
 app.add_url_rule('/equipment/',
                  view_func=Equipment.as_view('equipment'),
+                 methods=["GET","POST"])
+app.add_url_rule('/orders/',
+                 view_func=Orders.as_view('orders'),
                  methods=["GET","POST"])
 app.debug = True
 app.run('192.166.218.153')
