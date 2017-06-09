@@ -21,13 +21,11 @@ span.psw {    float: right;    padding-top: 16px;}
     {% if 'username' in session %}
         <p>Witam Cie {{session['username']}}!</p>
             {% if 'admin' in session['username'] %}
-            <p> Jako administrator niedlugo bedziesz mogl</p>
-            <p>dodawac, usuwac, modyfikowac uzytkownikow oraz sprzet </p>
             {% endif %}
         <form action="{{url_for('index')}}" method="post">
             <button type="submit" name="logout"> Wyloguj </button>
         </form>
-        {% endif %}
+    {% else %}
         <button type="submit" name="wypozycz"> Przejdz do sklepu </button>
             <form action="{{url_for('index')}}" method="post">
                 <div class="container">
@@ -35,7 +33,7 @@ span.psw {    float: right;    padding-top: 16px;}
                     <input type="text" placeholder="Podaj login" name="username" required/></p>
                     <label><b>Haslo:</b></label>
                     <input type="password" placeholder="Podaj haslo" name="password" required/></p>
-                    <button type="submit">Zaloguj sie</button>
+                    <button type="submit" name="login"> Zaloguj sie</button>
                     <input type="checkbox" checked="checked"> Remember me
                 </div>
 	        </form>
@@ -44,4 +42,5 @@ span.psw {    float: right;    padding-top: 16px;}
             {{message}}
         {% endfor %}
     {% endwith %}
+    {% endif %}
 {% endblock %}

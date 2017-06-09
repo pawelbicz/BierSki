@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block body %}
+<style>
+form {
+    border: 3px solid #f1f1f1;}
+input[type=text], input[type=password] {
+    width: 10%; padding: 5px 7px; margin: 2px 0; display: inline-block;
+    border: 1px solid #ccc; box-sizing: border-box;}
+button {    background-color: #4CAF50; color: white;   padding: 7px 10px;
+    margin: 4px 0;    border: none;    cursor: pointer;    width: 10%;}
+button:hover {    opacity: 0.8;}
+.imgcontainer {    text-align: center;    margin: 24px 0 12px 0;}
+.container {    padding: 16px;}
+span.psw {    float: right;    padding-top: 16px;}
+@media screen and (max-width: 300px) {    span.psw {       display: block;       float: none;    }
+    .cancelbtn {       width: 100%;    }}
+</style>
+  {% if 'admin' or 'pawel' or 'adam' or 'leszek' in session['username'] %}
+    <form action="{{ url_for('add') }}" method="post">
+        <div class="container">
+                <label><b>Dodawanie uzytkownika:</b></label>
+                <input type="text" placeholder="Podaj login" name="username" required/>
+                <input type="password" placeholder="Podaj haslo" name="password" required/></p>
+                        <select name="role">
+                        <option value="customer">Customer</option>
+                        <option value="worker">Worker</option>
+                        </select>
+                        <br><br>
+                <button name='adduser' type="submit">Dodaj uzytkownika</button>
+        </div>
+    </form>
+    <form action="{{ url_for('add') }}" method="post">
+        <div class="container">
+                <label><b>Usuwanie uzytkownika:</b></label>
+                <input type="text" placeholder="Podaj login" name="username" required/>
+                <button name='removeUser' type="submit">Usun uzytkownika</button>
+        </div>
+    </form>
+            <form action="{{ url_for('add') }}" method="post">
+                <div class="container">
+                <label><b>Listowanie uzytkownikow:</b></label>
+                <button name='listUsers' type="submit">Wylistuj uzytkownikow</button>
+                </div>
+            </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <br>{{message}}</br>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block body %}
+<style>
+form {
+    border: 3px solid #f1f1f1;}
+input[type=text], input[type=password] {
+    width: 10%; padding: 5px 7px; margin: 2px 0; display: inline-block;
+    border: 1px solid #ccc; box-sizing: border-box;}
+button {    background-color: #4CAF50; color: white;   padding: 7px 10px;
+    margin: 4px 0;    border: none;    cursor: pointer;    width: 10%;}
+button:hover {    opacity: 0.8;}
+.imgcontainer {    text-align: center;    margin: 24px 0 12px 0;}
+.container {    padding: 16px;}
+span.psw {    float: right;    padding-top: 16px;}
+@media screen and (max-width: 300px) {    span.psw {       display: block;       float: none;    }
+    .cancelbtn {       width: 100%;    }}
+</style>
+    <form action="{{ url_for('equipment') }}" method="post">
+        <div class="container">
+                <label><b>Dodawanie sprzetu:</b></label>
+                <input type="text" placeholder="Rodzaj sprzetu" name="type" required/>
+                <input type="text" placeholder="Marka" name="brand" required/>
+                <input type="text" placeholder="Rok produkcji" name="prod_year" required/>
+                 <select name="status">
+                        <option value=1>Dostepny</option>
+                        <option value=0>Niedostepny</option>
+                        </select></p>
+                <button name='addEquipment' type="submit">Dodaj sprzet</button>
+        </div>
+    </form>
+    <form action="{{ url_for('equipment') }}" method="post">
+        <div class="container">
+                <label><b>Usuwanie sprzetu:</b></label>
+                <input type="text" placeholder="Rodzaj sprzetu" name="type" required/>
+                <input type="text" placeholder="Marka" name="brand" required/>
+                <input type="text" placeholder="Rok produkcji" name="prod_year" required/>
+                 <select name="status">
+                        <option value=1>Dostepny</option>
+                        <option value=0>Niedostepny</option>
+                        </select></p>
+                <button name='removeEquipment' type="submit">Usun sprzet</button>
+        </div>
+    </form>
+    <form action="{{ url_for('equipment') }}" method="post">
+        <div class="container">
+                <label><b>Lista sprzetu:</b></label>
+                <button name='listOfEquipment' type="submit">List sprzetu</button>
+        </div>
+    </form>
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <br>{{message}}</br>
+        {% endfor %}
+    {% endwith %}
+{% endblock %}
