@@ -15,7 +15,6 @@ span.psw {    float: right;    padding-top: 16px;}
 @media screen and (max-width: 300px) {    span.psw {       display: block;       float: none;    }
     .cancelbtn {       width: 100%;    }}
 </style>
-
     <h1>Serdecznie witamy w wypozyczalni sprzetu zimowego!</h1>
     <h1>BierSki</h1>
     {% if 'username' in session %}
@@ -26,7 +25,9 @@ span.psw {    float: right;    padding-top: 16px;}
             <button type="submit" name="logout"> Wyloguj </button>
         </form>
     {% else %}
-        <button type="submit" name="wypozycz"> Przejdz do sklepu </button>
+        <form action="{{url_for('index')}}" method="post">
+        <button type="submit" name="listOfEquipment"> Przejdz do sklepu </button>
+        </form>
             <form action="{{url_for('index')}}" method="post">
                 <div class="container">
                     <label><b>Login:</b></label>

@@ -79,8 +79,61 @@ span.psw {    float: right;    padding-top: 16px;}
     <form action="{{ url_for('orders') }}" method="post">
         <div class="container">
                 <label><b>Zwrot sprzetu:</b></label>
-                <input type="text" placeholder="Id sprzetu" name="idToRemove" required/>
-                <button name='removeEquipmentButton' type="submit">Usun sprzet</button>
+                <br><input type="text" placeholder="Id sprzetu" name="return_eq" required/>
+                <br><select name="year">
+                    <option value=2017>2017</option>
+                    <option value=2016>2016</option>
+                    <option value=2015>2015</option>
+                    <option value=2014>2014</option>
+                </select></p>
+                <select name="month">
+                    <option value=1>styczen</option>
+                    <option value=2>luty</option>
+                    <option value=3>marzec</option>
+                    <option value=4>kwiecien</option>
+                    <option value=5>maj</option>
+                    <option value=6>czerwiec</option>
+                    <option value=7>lipiec</option>
+                    <option value=8>sierpien</option>
+                    <option value=9>wrzesien</option>
+                    <option value=10>pazdziernik</option>
+                    <option value=11>listopad</option>
+                    <option value=12>grudzien</option>
+                </select></p>
+                <select name="day">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
+                    <option value=10>10</option>
+                    <option value=11>11</option>
+                    <option value=12>12</option>
+                    <option value=13>13</option>
+                    <option value=14>14</option>
+                    <option value=15>15</option>
+                    <option value=16>16</option>
+                    <option value=17>17</option>
+                    <option value=18>18</option>
+                    <option value=19>19</option>
+                    <option value=20>20</option>
+                    <option value=21>21</option>
+                    <option value=22>22</option>
+                    <option value=23>23</option>
+                    <option value=24>24</option>
+                    <option value=25>25</option>
+                    <option value=26>26</option>
+                    <option value=27>27</option>
+                    <option value=28>28</option>
+                    <option value=29>29</option>
+                    <option value=30>30</option>
+                    <option value=31>31</option>
+                </select></p>
+                <button name='ReturnEquipment' type="submit">Zwroc sprzet</button>
         </div>
     </form>
     <form action="{{ url_for('orders') }}" method="post">

@@ -4,7 +4,7 @@ from flask import g, request, render_template
 import datetime
 import flask, flask_mysqldb, flask.views, linecache, os, functools, json, ConfigParser, werkzeug, collections
 from flask import g, request, render_template, jsonify
-
+from datetime import datetime
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -47,6 +47,9 @@ def logowanie():
         if ifLoginProperly == 0:
             flask.flash("Login lub haslo bledne")
         return "Logowanie"
+    elif 'goShop' in flask.request.form:
+        print "tmp"
+        return flask.render_template('equipment.html')
 
 def addUserToDatabase(login,password,role):
     print 'addUserToData'
@@ -132,6 +135,11 @@ def RentEquipment(year,month,day,user_id,equipment_id):
     mysqlCmd = "INSERT INTO `orders` (`o_date_start`, `u_id`, `e_id`) VALUES ('"+str(year)+"-"+str(month)+"-"+str(day)+"','"+str(user_id)+"','"+str(equipment_id)+"');"
     print mysqlCmd
     cursor.execute(mysqlCmd)
+    #wstawka
+    mysqlCmd = "UPDATE `equipment` SET `e_status` = 0 WHERE `e_id` = "+str(equipment_id)
+    print mysqlCmd
+    cursor.execute(mysqlCmd)
+    #koniec wstawki
     return "Wypozyczono sprzet"
 
 def listEquipment():
@@ -166,6 +174,32 @@ def listOrders():
         listOfOrders.append(row)
     return listOfOrders
 
+def GetDateStart(e_id):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute("SELECT o_date_start FROM orders WHERE e_id='"+str(e_id)+"'and o_charge is NULL;")
+    rows = cursor.fetchall()
+    return str(rows)
+
+def calcDays(start_date, stop_date):
+    date_format = "%Y-%m-%d"
+    start = datetime.strptime(start_date, date_format)
+    stop = datetime.strptime(stop_date, date_format)
+    delta = stop - start
+    return delta.days
+
+def UpdateCharge(o_charge,o_date_end,e_id):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute("UPDATE `orders` SET `o_date_end`='"+str(o_date_end)+"',`o_charge`='"+str(o_charge)+"' WHERE `e_id`='"+str(e_id)+"' and o_charge is NULL;")
+    rows = cursor.fetchall()
+    #wstawka
+    mysqlCmd = "UPDATE `equipment` SET `e_status` = 1 WHERE `e_id` = "+str(e_id)
+    print mysqlCmd
+    cursor.execute(mysqlCmd)
+    #koniec wstawki
+    return str(rows)
+
 class Main(flask.views.MethodView):
     def get(self):
         return flask.render_template('index.html')
@@ -174,6 +208,9 @@ class Main(flask.views.MethodView):
         if 'wypozycz' in flask.request.form:
             print "przejdz do sklepu dziala"
         print 'redirect page!!!'
+        if 'listOfEquipment' in flask.request.form:
+            print "w Przejdz do sklepu"
+            flask.redirect(flask.url_for('equipment'))
         return flask.redirect(flask.url_for('index'))
 
 class Add(flask.views.MethodView):
@@ -265,13 +302,29 @@ class Orders(flask.views.MethodView):
     def get(self):
         return flask.render_template('orders.html')
     def post(self):
-        if 'RentEquipment' in  flask.request.form:
+        if 'RentEquipment' in flask.request.form:
             year = flask.request.form['year']
             month = flask.request.form['month']
             day = flask.request.form['day']
             user_id = flask.request.form['user_id']
             equipment_id = flask.request.form['equipment_id']
             RentEquipment(year,month,day,user_id,equipment_id)
+        elif 'ReturnEquipment' in flask.request.form:
+            print 'kliknieto ReturnEquipment button'
+            equipment_id = flask.request.form['return_eq']
+            year = flask.request.form['year']
+            month = flask.request.form['month']
+            day = flask.request.form['day']
+            dateStart = GetDateStart(equipment_id)
+            dateStart = dateStart[16:26].replace(",","-").replace(" ","")
+            print dateStart
+            dateEnd = ""+str(year)+"-"+str(month)+"-"+str(day)+""
+            print dateEnd
+            dayRent=(calcDays(dateStart, dateEnd))
+            print dayRent
+            charge = dayRent *10
+            print charge
+            UpdateCharge(charge,dateEnd,equipment_id)
         elif 'listOfOrders' in  flask.request.form:
             EncodedListOfOrders =[]
             ListOfOrders = listOrders()
@@ -296,13 +349,67 @@ class Orders(flask.views.MethodView):
         return flask.render_template('orders.html')
 
 @app.route('/applogin', methods=['POST'])
-def logowanie():
+def logowanieAplikacja():
     login =  flask.request.form['login']
     password = flask.request.form['password']
-    result = "Zwracam "
-    result += login
-    result += password
-    return result
+    ifLoginProperly = 0
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    for row in rows:
+        if login == row[1] and password == row[2]:
+            flask.session['username'] = login
+            ifLoginProperly = 1
+    if ifLoginProperly == 0:
+        print "error"
+        return "error"
+    print "ok"
+    return "ok"
+
+@app.route('/appshowequipment', methods=['POST'])
+def appshowequipment():
+    listOfEquipment = listEquipment()
+    records = []
+    for equipment in listOfEquipment:
+        dictionary = collections.OrderedDict()
+        dictionary['e_id'] = equipment[0]
+        dictionary['e_type'] = str(equipment[1])
+        dictionary['e_brand'] = str(equipment[2])
+        dictionary['e_prod_year'] = str(equipment[3])
+        dictionary['e_status'] = equipment[4]
+        records.append(dictionary)
+    return jsonify({"wyswietl":records})
+
+@app.route('/apprentequipment', methods=['POST'])
+def apprentequipment():
+    year = flask.request.form['year']
+    month = flask.request.form['month']
+    day = flask.request.form['day']
+    user_id = flask.request.form['user_id']
+    equipment_id = flask.request.form['equipment_id']
+    RentEquipment(year,month,day,user_id,equipment_id)
+    return "done"
+
+@app.route('/appreturnequipment', methods=['POST'])
+def appreturnequipment():
+    year = flask.request.form['year']
+    month = flask.request.form['month']
+    day = flask.request.form['day']
+    user_id = flask.request.form['user_id']
+    equipment_id = flask.request.form['equipment_id']
+    print "app1"
+    dateStart = GetDateStart(equipment_id)
+    print dateStart
+    dateStart = dateStart[16:26].replace(",","-").replace(" ","")
+    dateEnd = ""+str(year)+"-"+str(month)+"-"+str(day)+""
+    print "app2"
+    print dateEnd
+    dayRent=(calcDays(dateStart, dateEnd))
+    charge = dayRent *10
+    UpdateCharge(charge,dateEnd,equipment_id)
+    return "done"
+
 app.add_url_rule('/',
                  view_func=Main.as_view('index'),
                  methods=["GET", "POST"])
